@@ -4,8 +4,10 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../core/api/constants.dart';
 import '../../core/api/objects/args/objTypes.dart';
 import '../../core/api/repositories/altteam.dart';
+import '../../core/api/repositories/communities.dart';
 import '../../core/api/repositories/links.dart';
 import '../../core/api/repositories/search.dart';
 import '../../core/l10n/app_localizations.dart';
@@ -766,7 +768,9 @@ class _PicksTabState extends State<_PicksTab>
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => const _CommunitySearchSheet(),
+      builder: (_) => _CommunitySearchSheet(
+        selectedIds: _items.map((c) => c['ndcId']).whereType<int>().toSet(),
+      ),
     );
     if (picked == null) return;
     try {
@@ -896,8 +900,12 @@ class _PicksTabState extends State<_PicksTab>
 }
 
 class _CommunitySearchSheet extends StatefulWidget {
-  const _CommunitySearchSheet({this.allowSelected = false});
+  const _CommunitySearchSheet({
+    this.allowSelected = false,
+    this.selectedIds = const {},
+  });
   final bool allowSelected;
+  final Set<int> selectedIds;
 
   @override
   State<_CommunitySearchSheet> createState() => _CommunitySearchSheetState();
@@ -913,25 +921,83 @@ class _CommunitySearchSheetState extends State<_CommunitySearchSheet> {
   final _ctrl = TextEditingController();
   Timer? _debounce;
 
-  /// Link / @aminoId / ndcId / name -> query for the server search.
-  Future<String> _resolveQuery(String raw) async {
-    var q = raw.trim();
-    if (q.startsWith('@')) q = q.substring(1).trim();
-    if (!_linkRe.hasMatch(q)) return q;
+  static final _digitsRe = RegExp(r'^\d+$');
+  static final _aminoIdRe = RegExp(r'^[a-zA-Z0-9_.-]+$');
+  final _comRepo = CommunitiesRepository();
 
-    final ndc = _comNdcRe.firstMatch(q)?.group(1);
-    if (ndc != null) return ndc;
+  Map<String, dynamic> _norm(Map c, int ndcId, {String? aminoId}) => {
+        ...Map<String, dynamic>.from(c),
+        'ndcId': ndcId,
+        'aminoId': (c['aminoId'] ?? aminoId ?? '').toString(),
+        'isSelected':
+            c['isSelected'] == true || widget.selectedIds.contains(ndcId),
+      };
 
-    final amino = q.contains('/u/') ? null : _comAminoRe.firstMatch(q)?.group(1);
-    if (amino != null) return amino;
-
-    final data = await _links.getFromLink(q);
-    final info = data['linkInfoV2']?['extensions']?['linkInfo'];
-    if (info is Map && info['objectType'] == ObjectTypes.community) {
-      final id = '${info['ndcId'] ?? info['objectId'] ?? ''}';
-      if (id.isNotEmpty) return id;
+  Future<Map<String, dynamic>?> _byNdcId(int id) async {
+    try {
+      final c = (await _comRepo.getCommunityInfo(id))['community'];
+      if (c is! Map) return null;
+      return _norm(c, id);
+    } catch (_) {
+      return null;
     }
-    return '';
+  }
+
+  Future<Map<String, dynamic>?> _byAminoId(String id) async {
+    try {
+      final data = await _links.getFromLink('$baseAltAminoUrl/c/$id');
+      final info = data['linkInfoV2']?['extensions']?['linkInfo'];
+      if (info is! Map || info['objectType'] != ObjectTypes.community) {
+        return null;
+      }
+      final ndcId = int.tryParse('${info['ndcId'] ?? info['objectId']}');
+      if (ndcId == null) return null;
+      final c = (await _comRepo.getCommunityInfo(ndcId))['community'];
+      if (c is! Map) return null;
+      return _norm(c, ndcId, aminoId: id);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<Map<String, dynamic>?> _byLink(String link) async {
+    final ndc = _comNdcRe.firstMatch(link)?.group(1);
+    if (ndc != null) return _byNdcId(int.parse(ndc));
+
+    final amino =
+        link.contains('/u/') ? null : _comAminoRe.firstMatch(link)?.group(1);
+    if (amino != null) {
+      final r = await _byAminoId(amino);
+      if (r != null) return r;
+    }
+
+    try {
+      final data = await _links.getFromLink(link);
+      final info = data['linkInfoV2']?['extensions']?['linkInfo'];
+      if (info is Map && info['objectType'] == ObjectTypes.community) {
+        final ndcId = int.tryParse('${info['ndcId'] ?? info['objectId']}');
+        if (ndcId != null) return _byNdcId(ndcId);
+      }
+    } catch (_) {}
+    return null;
+  }
+
+  Future<List<Map<String, dynamic>>> _byName(String q) async {
+    try {
+      final res = await _repo.searchDiscoverCommunities(query: q);
+      final raw = res['communityList'];
+      if (raw is! List) return [];
+      return raw.whereType<Map>().map((e) {
+        final m = Map<String, dynamic>.from(e);
+        final id = m['ndcId'];
+        if (id is int && widget.selectedIds.contains(id)) {
+          m['isSelected'] = true;
+        }
+        return m;
+      }).toList();
+    } catch (_) {
+      return [];
+    }
   }
 
   int _rank(Map<String, dynamic> c, String q) {
@@ -975,21 +1041,33 @@ class _CommunitySearchSheetState extends State<_CommunitySearchSheet> {
       _loading = true;
     });
     try {
-      final resolved = await _resolveQuery(q);
-      if (!mounted || q != _query) return;
-      if (resolved.isEmpty) {
-        setState(() {
-          _results = [];
-          _loading = false;
-        });
-        return;
+      final resolved = q.startsWith('@') ? q.substring(1).trim() : q;
+      final list = <Map<String, dynamic>>[];
+
+      if (_linkRe.hasMatch(resolved)) {
+        final r = await _byLink(resolved);
+        if (r != null) list.add(r);
+      } else {
+        final fId = _digitsRe.hasMatch(resolved)
+            ? _byNdcId(int.parse(resolved))
+            : Future<Map<String, dynamic>?>.value(null);
+        final fAmino = _aminoIdRe.hasMatch(resolved)
+            ? _byAminoId(resolved)
+            : Future<Map<String, dynamic>?>.value(null);
+        final fName = _byName(resolved);
+
+        final byId = await fId;
+        final byAmino = await fAmino;
+        final byName = await fName;
+
+        for (final c in [byId, byAmino, ...byName]) {
+          if (c == null) continue;
+          if (list.any((e) => '${e['ndcId']}' == '${c['ndcId']}')) continue;
+          list.add(c);
+        }
       }
-      final res = await _repo.searchDiscoverCommunities(query: resolved);
       if (!mounted || q != _query) return;
-      final raw = res['communityList'];
-      final list = raw is List
-          ? raw.whereType<Map>().map((e) => Map<String, dynamic>.from(e)).toList()
-          : <Map<String, dynamic>>[];
+
       final indexed = [for (var i = 0; i < list.length; i++) (i, list[i])];
       indexed.sort((a, b) {
         final r = _rank(a.$2, resolved).compareTo(_rank(b.$2, resolved));
