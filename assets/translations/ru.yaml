@@ -9,11 +9,13 @@ common:
   cancel: "Отмена"
   copied: "Скопировано"
   disable: "Отключить"
+  enable: "Включить"
   edit: "Изменить"
   error: "Что-то пошло не так"
   retry: "Повторить"
   save: "Сохранить"
   unknown: "Неизвестно"
+  delete: "Удалить"
 
 auth:
   login:
@@ -191,6 +193,8 @@ admin:
     user_unbanned: "Пользователь разблокирован в сообществе"
     visibility_status: "Видимость"
     your_role: "Ваша роль"
+    disable_message: "Вы уверены, что хотите отключить сообщество? Оно станет недоступным для участников."
+    disable_title: "Отключить сообщество?"
 
   community_actions:
     open_app: "Открыть в altteam"
@@ -263,6 +267,33 @@ admin:
     store: "Магазин"
     store_desc: "Рамки, баблы, стикеры"
     title: "Админ-панель"
+
+    online: "Онлайн"
+    online_desc: "Список пользователей, которые сейчас онлайн"
+
+
+  discover:
+    title: "Discover"
+    banners_empty: "Баннеров нет"
+    tab_banners: "Баннеры"
+    tab_picks: "Выбор команды"
+    banner_add: "Добавить баннер"
+    banner_edit: "Изменить баннер"
+    banner_pick_image: "Выбрать изображение"
+    banner_link: "Ссылка (необязательно)"
+    banner_deeplink: "Диплинк (необязательно)"
+    banner_segment: "Сегмент"
+    delete_banner_title: "Удалить баннер?"
+    delete_banner_message: "Это действие нельзя отменить."
+    pick_add: "Добавить сообщество"
+    picks_empty: "Сообществ в подборке нет"
+    search_hint: "Название или amino ID сообщества"
+    search_empty: "Ничего не найдено"
+  online:
+    count: "Пользователей онлайн: {count}"
+    empty: "Пользователи не найдены"
+    disabled: "Отключён"
+    title: "Онлайн"
 
   password_reset:
     button_submit: "Сбросить пароль"

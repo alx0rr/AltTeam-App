@@ -65,4 +65,87 @@ class AltTemRepository {
     await Api.post('/g/s/altteam/mod/$type/$action/$objId');
   }
 
+
+  Future<Map<String, dynamic>> getOnlineUsers({
+    int start = 0,
+    int size = 30,
+  }) async {
+    return await Api.get('/g/s/altteam/online?start=$start&size=$size');
+  }
+
+
+
+
+  // DISCOVER
+
+  Future<Map<String, dynamic>> getDiscoverBanners() async {
+    return await Api.get('/g/s/altteam/discover/banners');
+  }
+
+  Future<void> createDiscoverBanner({
+    required String imageUrl,
+    String? landingUrl,
+    String? deepLink,
+    String? segment,
+  }) async {
+    await Api.post('/g/s/altteam/discover/banners/create', body: {
+      "imageUrl": imageUrl,
+      "landingUrl": landingUrl,
+      "deepLink": deepLink,
+      "segment": segment,
+    });
+  }
+
+  Future<void> editDiscoverBanner(
+    String id, {
+    String? imageUrl,
+    String? landingUrl,
+    String? deepLink,
+    String? segment,
+    bool? enabled,
+  }) async {
+    await Api.post('/g/s/altteam/discover/banners/$id/edit', body: {
+      if (imageUrl != null) "imageUrl": imageUrl,
+      if (landingUrl != null) "landingUrl": landingUrl,
+      if (enabled != null) "enabled": enabled,
+      if (deepLink != null) "deepLink": deepLink,
+      if (segment != null) "segment": segment,
+    });
+  }
+
+  Future<void> deleteDiscoverBanner(String id) async {
+    await Api.post('/g/s/altteam/discover/banners/$id/delete');
+  }
+
+  Future<void> reorderDiscoverBanners(List<String> ids) async {
+    await Api.post('/g/s/altteam/discover/banners/reorder', body: {"ids": ids});
+  }
+
+  Future<Map<String, dynamic>> getDiscoverPicks() async {
+    return await Api.get('/g/s/altteam/discover/picks');
+  }
+
+  Future<Map<String, dynamic>> searchDiscoverCommunities({
+    required String query,
+    int start = 0,
+    int size = 20,
+  }) async {
+    return await Api.get(
+      '/g/s/altteam/discover/communities/search'
+      '?query=${Uri.encodeComponent(query)}&start=$start&size=$size',
+    );
+  }
+
+  Future<void> setDiscoverPick(int ndcId, {required bool selected}) async {
+    await Api.post('/g/s/altteam/discover/picks/$ndcId/set', body: {
+      "selected": selected,
+    });
+  }
+
+  Future<void> reorderDiscoverTeamPicks(List<String> ids) async {
+    await Api.post('/g/s/altteam/discover/picks/reorder', body: {"picks": ids});
+  }
+
 }
+
+

@@ -25,9 +25,16 @@ Future<MemberAction?> showManageMemberSheet(
         margin: const EdgeInsets.all(12),
         padding: const EdgeInsets.fromLTRB(14, 10, 14, 14),
         decoration: BoxDecoration(
-          color: colors.glassFillStrong,
+          color: colors.surfaceElevated,
           borderRadius: BorderRadius.circular(28),
           border: Border.all(color: colors.glassBorder),
+          boxShadow: [
+            BoxShadow(
+              color: colors.shadow,
+              blurRadius: 24,
+              offset: const Offset(0, 8),
+            ),
+          ],
         ),
         child: SingleChildScrollView(
           child: Column(

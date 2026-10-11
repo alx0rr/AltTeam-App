@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../core/api/objects/args/roles.dart';
 import '../../core/api/repositories/altacm.dart';
 import '../../core/api/repositories/communities.dart';
 import '../../core/api/repositories/users.dart';
@@ -9,10 +8,10 @@ import '../../core/l10n/app_localizations.dart';
 import '../../core/storage.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/widgets/app_background.dart';
-import '../../core/widgets/app_bottom_bar.dart';
 import '../../core/widgets/app_drawer.dart';
 import '../../core/widgets/community/community_card.dart';
 import '../../core/widgets/error_banner.dart';
+import '../../core/widgets/main_bottom_bar.dart';
 
 class GeneralScreen extends StatefulWidget {
   const GeneralScreen({
@@ -113,7 +112,6 @@ class _GeneralScreenState extends State<GeneralScreen> {
     final iconUrl = _profile?['icon'] as String?;
     final isVerified = _profile?['isNicknameVerified'] as bool? ?? false;
     final role = Storage.role ?? _profile?['role'] as int? ?? 0;
-    final isAdmin = RoleTypes.isStaffRole(role);
 
     return Scaffold(
       key: _scaffoldKey,
@@ -128,32 +126,11 @@ class _GeneralScreenState extends State<GeneralScreen> {
         onSetTheme: widget.onSetTheme,
         onSetLocale: widget.onSetLocale,
       ),
-      bottomNavigationBar: AppBottomBar(
-        items: [
-          AppBottomBarItem(
-            icon: Icons.menu_rounded,
-            label: AppLocalizations.t('nav.menu'),
-            onTap: () => _scaffoldKey.currentState?.openDrawer(),
-          ),
-          AppBottomBarItem(
-            icon: Icons.category_rounded,
-            label: AppLocalizations.t('nav.communities'),
-            selected: true,
-            onTap: () {},
-          ),
-          if (isAdmin)
-            AppBottomBarItem(
-              icon: Icons.admin_panel_settings_rounded,
-              label: AppLocalizations.t('nav.admin'),
-              onTap: () => context.push('/admin/control-panel'),
-            ),
-          AppBottomBarItem(
-            avatar: true,
-            avatarUrl: iconUrl,
-            label: AppLocalizations.t('nav.profile'),
-            onTap: () => context.push('/profile'),
-          ),
-        ],
+      bottomNavigationBar: MainBottomBar(
+        current: MainTab.communities,
+        role: role,
+        iconUrl: iconUrl,
+        onMenu: () => _scaffoldKey.currentState?.openDrawer(),
       ),
       body: AppBackground(
         child: SafeArea(
@@ -283,7 +260,6 @@ class _SectionTitle extends StatelessWidget {
     );
   }
 }
-
 
 class _CreateCard extends StatelessWidget {
   const _CreateCard({required this.onTap});

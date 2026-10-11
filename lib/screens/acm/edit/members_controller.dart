@@ -54,10 +54,10 @@ class MembersController extends ChangeNotifier with SafeNotify {
       CommunityRoles.isProtected(CommunityRoles.parse(user['role']));
 
   bool canChangeRole(Map<String, dynamic> user) =>
-      !isSelf(user) && !_isProtected(user);
+      _isProtected(user);
 
   bool canTransfer(Map<String, dynamic> user) =>
-      !isSelf(user) && !_isProtected(user) && canTransferAgent();
+      canTransferAgent();
 
 
   void onQueryChanged(String q) {

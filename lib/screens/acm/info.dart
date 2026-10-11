@@ -6,6 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../core/api/constants.dart';
 import '../../../core/api/objects/args/roles.dart';
 import '../../../core/api/repositories/altacm.dart';
+import '../../../core/api/repositories/altteam.dart';
 import '../../../core/api/repositories/communities.dart';
 import '../../../core/l10n/app_localizations.dart';
 import '../../../core/storage.dart';
@@ -23,14 +24,20 @@ class AltAcmCommunityScreen extends StatefulWidget {
 }
 
 class _AltAcmCommunityScreenState extends State<AltAcmCommunityScreen> {
+  static const int _statusDisabled = 9;
+
   final _comRepo = CommunitiesRepository();
   final _altAcmRepo = AltACMRepository();
+  final _altTeamRepo = AltTemRepository();
 
   Map<String, dynamic>? _community;
   bool _loading = true;
   bool _deleting = false;
+  bool _toggling = false;
 
   bool _dataChanged = false;
+
+  bool get _isDisabled => (_community?['status'] ?? 0) == _statusDisabled;
 
   @override
   void initState() {
@@ -82,13 +89,89 @@ class _AltAcmCommunityScreenState extends State<AltAcmCommunityScreen> {
     }
   }
 
+  Future<void> _toggleDisabled() async {
+    if (_toggling) return;
+    final disable = !_isDisabled;
+
+    if (disable) {
+      final ok = await _confirmDisable();
+      if (ok != true || !mounted) return;
+    }
+
+    setState(() => _toggling = true);
+    try {
+      await _altTeamRepo.setModerationStatus(
+        type: 'community',
+        objId: widget.ndcId,
+        disable: disable,
+      );
+      _dataChanged = true;
+      if (!mounted) return;
+      AppSnackbar.show(
+        context,
+        AppLocalizations.t(disable
+            ? 'admin.community.disabled_success'
+            : 'admin.community.enabled_success'),
+      );
+      setState(() => _toggling = false);
+      await _load();
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _toggling = false);
+      AppSnackbar.show(context, _clean(e), type: SnackType.error);
+    }
+  }
+
+  Future<bool?> _confirmDisable() {
+    final colors = AppColors.of(context);
+    return showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: colors.surfaceElevated,
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: BorderSide(color: colors.glassBorder),
+        ),
+        title: Text(
+          AppLocalizations.t('admin.community.disable_title'),
+          style: TextStyle(
+              color: colors.textPrimary,
+              fontSize: 18,
+              fontWeight: FontWeight.bold),
+        ),
+        content: Text(
+          AppLocalizations.t('admin.community.disable_message'),
+          style: TextStyle(color: colors.textMuted, fontSize: 14),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(AppLocalizations.t('common.cancel'),
+                style: TextStyle(color: colors.textMuted)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(AppLocalizations.t('common.disable'),
+                style: TextStyle(
+                    color: colors.error, fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
+    );
+  }
+
   Future<void> _confirmDelete() async {
     final colors = AppColors.of(context);
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: colors.glassFillStrong,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        backgroundColor: colors.surfaceElevated,
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: BorderSide(color: colors.glassBorder),
+        ),
         title: Text(
           AppLocalizations.t('ndc.details.delete_dialog_title'),
           style: TextStyle(
@@ -192,7 +275,7 @@ class _AltAcmCommunityScreenState extends State<AltAcmCommunityScreen> {
   }
 
   Widget _buildBody(AppPalette colors) {
-    if (_loading || _deleting) {
+    if (_loading || _deleting || _toggling) {
       return Center(
           child: CircularProgressIndicator(color: colors.accentPrimary));
     }
@@ -445,6 +528,7 @@ class _AltAcmCommunityScreenState extends State<AltAcmCommunityScreen> {
 
   Widget _buildActions(AppPalette colors) {
     final isStaff = RoleTypes.isStaffRole(Storage.role);
+    final disabled = _isDisabled;
 
     ButtonStyle tonal(Color fg, Color bg) => ElevatedButton.styleFrom(
           backgroundColor: bg,
@@ -488,15 +572,22 @@ class _AltAcmCommunityScreenState extends State<AltAcmCommunityScreen> {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton.icon(
-              style: tonal(colors.textPrimary, colors.glassFill),
-              icon: const Icon(Icons.visibility_off_outlined, size: 20),
-              label: Text(AppLocalizations.t('common.disable'),
-                  style: const TextStyle(fontWeight: FontWeight.bold)),
-              onPressed: () => AppSnackbar.show(
-                context,
-                AppLocalizations.t('admin.community.disable_unavailable'),
-                type: SnackType.info,
+              style: disabled
+                  ? tonal(colors.accentPrimary,
+                      colors.accentPrimary.withValues(alpha: 0.15))
+                  : tonal(colors.textPrimary, colors.glassFill),
+              icon: Icon(
+                disabled
+                    ? Icons.visibility_outlined
+                    : Icons.visibility_off_outlined,
+                size: 20,
               ),
+              label: Text(
+                AppLocalizations.t(
+                    disabled ? 'common.enable' : 'common.disable'),
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+              onPressed: _toggleDisabled,
             ),
           ),
         ],

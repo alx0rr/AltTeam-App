@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/api/constants.dart';
@@ -92,6 +93,10 @@ class _AdminTeamScreenState extends State<AdminTeamScreen> {
       default:
         return colors.accentPrimary;
     }
+  }
+
+  void _openUserPage(String uid) {
+    context.push('/user/$uid');
   }
 
   Future<void> _openTelegram(int telegramId) async {
@@ -202,6 +207,7 @@ class _AdminTeamScreenState extends State<AdminTeamScreen> {
                 rank: index < 3 ? index : null,
                 roleLabel: _roleLabel(m.role),
                 roleColor: _roleColor(m.role, colors),
+                onOpen: m.id.isEmpty ? null : () => _openUserPage(m.id),
                 onTelegram:
                     m.telegramId == null ? null : () => _openTelegram(m.telegramId!),
                 onAmino: m.aminoId.isEmpty ? null : () => _openAltAmino(m.aminoId),
@@ -281,6 +287,7 @@ class _MemberCard extends StatelessWidget {
     required this.rank,
     required this.roleLabel,
     required this.roleColor,
+    required this.onOpen,
     required this.onTelegram,
     required this.onAmino,
   });
@@ -289,11 +296,12 @@ class _MemberCard extends StatelessWidget {
   final int? rank;
   final String roleLabel;
   final Color roleColor;
+  final VoidCallback? onOpen;
   final VoidCallback? onTelegram;
   final VoidCallback? onAmino;
 
   static const _medalColors = [
-    Color(0xFFFFC83D), 
+    Color(0xFFFFC83D),
     Color(0xFFB8C2CC),
     Color(0xFFCD8A52),
   ];
@@ -317,86 +325,107 @@ class _MemberCard extends StatelessWidget {
         ),
         border: Border.all(color: roleColor.withValues(alpha: 0.28)),
       ),
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(14),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _AvatarWithRing(member: member, ringColor: roleColor, rank: rank),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        member.nickname,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: colors.textPrimary,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      if (member.aminoId.isNotEmpty) ...[
-                        const SizedBox(height: 2),
-                        Text(
-                          '@${member.aminoId}',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(color: colors.textMuted, fontSize: 12),
-                        ),
-                      ],
-                      const SizedBox(height: 10),
-                      Wrap(
-                        spacing: 6,
-                        runSpacing: 6,
+      child: Material(
+        type: MaterialType.transparency,
+        borderRadius: radius,
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          children: [
+            InkWell(
+              onTap: onOpen,
+              child: Padding(
+                padding: const EdgeInsets.all(14),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _AvatarWithRing(
+                      member: member,
+                      ringColor: roleColor,
+                      rank: rank,
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _Badge(text: roleLabel, color: roleColor, filled: true),
-                          for (final tag in member.tagList)
-                            _Badge(text: tag, color: colors.accentPrimary),
+                          Text(
+                            member.nickname,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: colors.textPrimary,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          if (member.aminoId.isNotEmpty) ...[
+                            const SizedBox(height: 2),
+                            Text(
+                              '@${member.aminoId}',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                color: colors.textMuted,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                          const SizedBox(height: 10),
+                          Wrap(
+                            spacing: 6,
+                            runSpacing: 6,
+                            children: [
+                              _Badge(
+                                text: roleLabel,
+                                color: roleColor,
+                                filled: true,
+                              ),
+                              for (final tag in member.tagList)
+                                _Badge(text: tag, color: colors.accentPrimary),
+                            ],
+                          ),
                         ],
                       ),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(width: 10),
+                    _ReputationChip(value: member.reputation),
+                  ],
                 ),
-                const SizedBox(width: 10),
-                _ReputationChip(value: member.reputation),
-              ],
-            ),
-          ),
-          if (hasActions) ...[
-            Divider(color: roleColor.withValues(alpha: 0.18), height: 1),
-            Padding(
-              padding: const EdgeInsets.all(10),
-              child: Row(
-                children: [
-                  if (onTelegram != null)
-                    Expanded(
-                      child: _ActionButton(
-                        icon: Icons.telegram,
-                        label: AppLocalizations.t('admin.team.action.telegram'),
-                        color: Colors.blue.shade400,
-                        onTap: onTelegram!,
-                      ),
-                    ),
-                  if (onTelegram != null && onAmino != null) const SizedBox(width: 8),
-                  if (onAmino != null)
-                    Expanded(
-                      child: _ActionButton(
-                        icon: Icons.open_in_new_rounded,
-                        label: AppLocalizations.t('admin.team.action.amino'),
-                        color: colors.accentPrimary,
-                        onTap: onAmino!,
-                      ),
-                    ),
-                ],
               ),
             ),
+            if (hasActions) ...[
+              Divider(color: roleColor.withValues(alpha: 0.18), height: 1),
+              Padding(
+                padding: const EdgeInsets.all(10),
+                child: Row(
+                  children: [
+                    if (onTelegram != null)
+                      Expanded(
+                        child: _ActionButton(
+                          icon: Icons.telegram,
+                          label:
+                              AppLocalizations.t('admin.team.action.telegram'),
+                          color: Colors.blue.shade400,
+                          onTap: onTelegram!,
+                        ),
+                      ),
+                    if (onTelegram != null && onAmino != null)
+                      const SizedBox(width: 8),
+                    if (onAmino != null)
+                      Expanded(
+                        child: _ActionButton(
+                          icon: Icons.open_in_new_rounded,
+                          label: AppLocalizations.t('admin.team.action.amino'),
+                          color: colors.accentPrimary,
+                          onTap: onAmino!,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }

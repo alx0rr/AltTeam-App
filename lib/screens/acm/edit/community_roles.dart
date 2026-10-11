@@ -16,7 +16,7 @@ abstract class CommunityRoles {
 
 
   static bool isProtected(int role) =>
-      role == RoleTypes.roleAgent || RoleTypes.isStaffRole(role);
+      role == RoleTypes.roleAgent || role == RoleTypes.roleLeader || RoleTypes.isStaffRole(Storage.role);
 
   static String label(int role) {
     if (role == RoleTypes.roleUser) {

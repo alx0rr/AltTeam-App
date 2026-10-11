@@ -8,6 +8,7 @@ import '../../core/l10n/app_localizations.dart';
 import '../../core/storage.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/widgets/app_background.dart';
+import '../../core/widgets/main_scaffold.dart';
 import '../../core/widgets/user_avatar.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -28,6 +29,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool _loading = true;
   bool _loggingOut = false;
   String? _error;
+
+  int get _role => Storage.role ?? _profile?['role'] as int? ?? 0;
+  bool get _isStaff => RoleTypes.isStaffRole(_role);
 
   @override
   void initState() {
@@ -168,9 +172,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     final colors = AppColors.of(context);
 
-    return Scaffold(
+    return MainScaffold(
+      current: MainTab.profile,
       body: AppBackground(
         child: SafeArea(
+          bottom: false,
           child: Column(
             children: [
               _buildHeader(colors),
@@ -195,26 +201,42 @@ class _ProfileScreenState extends State<ProfileScreen> {
             icon: Icon(Icons.arrow_back, color: colors.textPrimary, size: 20),
             onPressed: () => context.pop(),
           ),
-          Text(
-            AppLocalizations.t('profile.title'),
-            style: TextStyle(
-              color: colors.textPrimary,
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
+          Expanded(
+            child: Text(
+              AppLocalizations.t('profile.title'),
+              style: TextStyle(
+                color: colors.textPrimary,
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
+          if (_isStaff && (Storage.userId ?? '').isNotEmpty)
+            IconButton(
+              onPressed: () => context.push('/user/${Storage.userId}'),
+              style: IconButton.styleFrom(
+                backgroundColor: colors.accentPrimary.withValues(alpha: 0.12),
+              ),
+              icon: Icon(
+                Icons.manage_accounts_rounded,
+                color: colors.accentPrimary,
+                size: 22,
+              ),
+            ),
         ],
       ),
     );
   }
 
   Widget _buildBody(AppPalette colors) {
+    final bottomPad = 32 + MediaQuery.of(context).padding.bottom;
+
     if (_loading) {
       return Center(child: CircularProgressIndicator(color: colors.accentPrimary));
     }
     if (_error != null) {
       return Padding(
-        padding: const EdgeInsets.fromLTRB(24, 40, 24, 32),
+        padding: EdgeInsets.fromLTRB(24, 40, 24, bottomPad),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -242,7 +264,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final nickname = p['nickname'] as String? ?? '';
     final iconUrl = p['icon'] as String?;
     final isVerified = p['isNicknameVerified'] as bool? ?? false;
-    final role = Storage.role ?? p['role'] as int? ?? 0;
+    final role = _role;
     final reputation = p['reputation'] as int? ?? 0;
     final createdTime = _formatDate(p['createdTime'] as String?);
     final modifiedTime = _formatDate(p['modifiedTime'] as String?);
@@ -256,7 +278,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       onRefresh: _load,
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.only(bottom: 32),
+        padding: EdgeInsets.only(bottom: bottomPad),
         child: Column(
           children: [
             SizedBox(

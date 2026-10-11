@@ -17,6 +17,17 @@ class AppTheme {
       surface: p.surfaceElevated,
       onSurface: p.textPrimary,
       error: p.error,
+      surfaceTint: Colors.transparent,
+      surfaceContainerLowest: p.surfaceElevated,
+      surfaceContainerLow: p.surfaceElevated,
+      surfaceContainer: p.surfaceElevated,
+      surfaceContainerHigh: p.surfaceElevated,
+      surfaceContainerHighest: p.surfaceElevated,
+    );
+
+    final popupShape = RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(20),
+      side: BorderSide(color: p.glassBorder),
     );
 
     return ThemeData(
@@ -35,6 +46,44 @@ class AppTheme {
         backgroundColor: p.surfaceElevated,
         contentTextStyle: TextStyle(color: p.textPrimary),
         behavior: SnackBarBehavior.floating,
+      ),
+      dialogTheme: DialogThemeData(
+        backgroundColor: p.surfaceElevated,
+        surfaceTintColor: Colors.transparent,
+        shape: popupShape,
+        titleTextStyle: TextStyle(
+          color: p.textPrimary,
+          fontSize: 18,
+          fontWeight: FontWeight.w600,
+        ),
+        contentTextStyle: TextStyle(color: p.textSecondary, fontSize: 14),
+      ),
+      bottomSheetTheme: BottomSheetThemeData(
+        backgroundColor: p.surfaceElevated,
+        modalBackgroundColor: p.surfaceElevated,
+        surfaceTintColor: Colors.transparent,
+        showDragHandle: false,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+      ),
+      popupMenuTheme: PopupMenuThemeData(
+        color: p.surfaceElevated,
+        surfaceTintColor: Colors.transparent,
+        shape: popupShape,
+        textStyle: TextStyle(color: p.textPrimary),
+      ),
+      dropdownMenuTheme: DropdownMenuThemeData(
+        menuStyle: MenuStyle(
+          backgroundColor: WidgetStatePropertyAll(p.surfaceElevated),
+          surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
+        ),
+      ),
+      menuTheme: MenuThemeData(
+        style: MenuStyle(
+          backgroundColor: WidgetStatePropertyAll(p.surfaceElevated),
+          surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
+        ),
       ),
     );
   }
