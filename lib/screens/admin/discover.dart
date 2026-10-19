@@ -423,9 +423,9 @@ class _BannerFormState extends State<_BannerForm> {
   final _links = LinksRepository();
   final _picker = ImagePicker();
 
-  late final _link = TextEditingController(
+  /*late final _link = TextEditingController(
     text: widget.banner?['landingUrl']?.toString() ?? '',
-  );
+  );*/
   late final _deepLink = TextEditingController(
     text: widget.banner?['deepLink']?.toString() ?? '',
   );
@@ -450,7 +450,7 @@ class _BannerFormState extends State<_BannerForm> {
 
   @override
   void dispose() {
-    _link.dispose();
+    //_link.dispose();
     _deepLink.dispose();
     super.dispose();
   }
@@ -507,7 +507,7 @@ class _BannerFormState extends State<_BannerForm> {
       if (!mounted) return;
       Navigator.pop<_BannerData>(context, (
         imageUrl: url,
-        landingUrl: _link.text.trim(),
+        landingUrl: "",//_link.text.trim(),
         deepLink: _deepLink.text.trim(),
         segment: _segment,
       ));
@@ -635,7 +635,7 @@ class _BannerFormState extends State<_BannerForm> {
                 const SizedBox(height: 14),
                 _preview(colors),
                 const SizedBox(height: 12),
-                TextField(
+                /*TextField(
                   controller: _link,
                   enabled: !_saving,
                   keyboardType: TextInputType.url,
@@ -644,6 +644,7 @@ class _BannerFormState extends State<_BannerForm> {
                       colors, AppLocalizations.t('admin.discover.banner_link')),
                 ),
                 const SizedBox(height: 12),
+                */
                 TextField(
                   controller: _deepLink,
                   enabled: !_saving,

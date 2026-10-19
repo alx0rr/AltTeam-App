@@ -119,16 +119,19 @@ class _OnlineUsersScreenState extends State<OnlineUsersScreen> {
     final colors = AppColors.of(context);
 
     return AppBackground(
-        child: SafeArea(
-          bottom: false,
-          child: Column(
-            children: [
-              AdminHeader(title: AppLocalizations.t('admin.online.title')),
-              Expanded(child: _buildBody(colors)),
-            ],
+          child: Material(
+            type: MaterialType.transparency,
+            child: SafeArea(
+              bottom: false,
+              child: Column(
+                children: [
+                  AdminHeader(title: AppLocalizations.t('admin.online.title')),
+                  Expanded(child: _buildBody(colors)),
+                ],
+              ),
+            ),
           ),
-        ),
-    );
+        );
   }
 
   Widget _buildBody(AppPalette colors) {

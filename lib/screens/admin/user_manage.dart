@@ -112,6 +112,7 @@ class _UserManageScreenState extends State<UserManageScreen> {
         'icon': _cleanIcon(p['icon']),
         'verified': p['verified'] == true,
         'status': p['status'] ?? 0,
+        'isBot': p['isBot'] == true,
         'hidden': (p['extensions'] as Map?)?['hideUserProfile'] == true,
         'role': p['role'] as int? ?? 0,
         'tagList': (p['tagList'] as List?)?.cast<String>() ?? const <String>[],
@@ -498,7 +499,7 @@ class _UserManageScreenState extends State<UserManageScreen> {
 
   bool _canEditNdcRole(int? targetRole) {
     if (!(_isStaffViewer || _communityMode)) return false;
-    if (_isSelf) return false;
+    if (_isSelf && !_isStaffViewer) return false;
     if (targetRole == null) return true;
     return _ndcEditableRoles.contains(targetRole);
   }
@@ -1063,6 +1064,9 @@ class _UserManageScreenState extends State<UserManageScreen> {
                   ),
                 for (final t in tags)
                   _Badge(text: t, color: colors.accentPrimary),
+                
+                if (_user['isBot']??false)
+                  _Badge(text: "Bot", color: colors.textMuted)
               ],
             ),
           ],
