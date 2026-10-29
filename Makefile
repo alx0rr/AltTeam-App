@@ -15,20 +15,22 @@ WINDOWS_DIR_NAME := windows
 LINUX_DIR_NAME := linix
 
 help:
-	@echo "  get        — install dependencies"
-	@echo "  clean      — clean and reinstall"
-	@echo "  icons      — generate app icons"
-	@echo "  regen      — run build_runner"
-	@echo "  run        — run debug"
-	@echo "  apk        — build APK"
-	@echo "  appbundle  — build AAB"
-	@echo "  ios        — build iOS"
-	@echo "  ipa        — build IPA"
-	@echo "  macos      — build macOS"
-	@echo "  windows    — build Windows"
-	@echo "  linux      — build Linux"
-	@echo "  build-all  — build everything"
-	@echo "  package    — pack artifacts"
+	@echo "  get          — install dependencies"
+	@echo "  clean        — clean and reinstall"
+	@echo "  icons        — generate app icons"
+	@echo "  regen        — run build_runner"
+	@echo "  run          — run debug"
+	@echo "  apk          — build APK"
+	@echo "  apk-all      — build all APK types"
+	@echo "  build-mobile — build for ios & android"
+	@echo "  appbundle    — build AAB"
+	@echo "  ios          — build iOS"
+	@echo "  ipa          — build IPA"
+	@echo "  macos        — build macOS"
+	@echo "  windows      — build Windows"
+	@echo "  linux        — build Linux"
+	@echo "  build-all    — build everything"
+	@echo "  package      — pack artifacts"
 
 get:
 	cd $(PROJECT) && flutter pub get
