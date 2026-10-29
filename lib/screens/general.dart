@@ -178,7 +178,7 @@ class _GeneralScreenState extends State<GeneralScreen> {
     if (_loading) {
       return Center(child: CircularProgressIndicator(color: colors.accentPrimary));
     }
-    final bottomPad = 24 + MediaQuery.of(context).padding.bottom;
+    final bottomPad = 24 + MediaQuery.of(context).padding.bottom + 90;
 
     return RefreshIndicator(
       color: colors.accentPrimary,

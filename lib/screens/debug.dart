@@ -69,6 +69,10 @@ class _DebugScreenState extends State<DebugScreen> {
         'User ID': Storage.userId ?? '—',
         'Amino ID': Storage.aminoId ?? '—',
         'Role': '${Storage.role ?? '—'}',
+        'Email': '${Storage.email ?? '-'}',
+        'Device ID': '${Storage.deviceId ?? '-'}',
+        'Secret': '${Storage.secret ?? '-'}',
+        'SID': '${Storage.sid ?? '-'}',
       },
       'Settings': {
         'Locale': Storage.locale,

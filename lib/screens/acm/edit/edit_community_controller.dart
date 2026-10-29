@@ -18,6 +18,8 @@ class EditCommunityController extends ChangeNotifier with SafeNotify {
       ndcId: ndcId,
       acm: _acm,
       search: _search,
+      links: _links,
+      users: _users,
       canTransferAgent: () => canTransferAgent,
       onDataChanged: markChanged,
       afterTransfer: refreshViewerRole,

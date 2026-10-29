@@ -104,7 +104,7 @@ class GeneralTab extends EditTab {
             ],
           ),
         ),
-        if (c.isStaff && c.languages.isNotEmpty) ...[
+        if (c.languages.isNotEmpty) ...[
           const SizedBox(height: 14),
           SectionCard(
             title: AppLocalizations.t('admin.community.field_language'),

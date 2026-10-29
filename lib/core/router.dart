@@ -14,6 +14,7 @@ import '../screens/announcements/main.dart';
 import '../screens/announcements/create.dart';
 import '../screens/admin/reset_password.dart';
 import '../screens/admin/moderation_search.dart';
+import '../screens/admin/store.dart';
 import '../screens/admin/user_manage.dart'; 
 import '../screens/acm/create.dart';
 import '../screens/acm/edit.dart';
@@ -84,6 +85,11 @@ GoRouter buildRouter({
       GoRoute(
         path: '/admin/debug',
         builder: (context, state) => const DebugScreen(),
+      ),
+
+      GoRoute(
+        path: '/admin/store',
+        builder: (context, state) => const StoreScreen(),
       ),
 
       GoRoute(

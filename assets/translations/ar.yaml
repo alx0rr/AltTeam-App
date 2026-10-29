@@ -14,6 +14,7 @@ common:
   retry: "إعادة المحاولة"
   save: "حفظ"
   unknown: "غير معروف"
+  delete: "حذف"
 
 auth:
   login:
@@ -191,6 +192,8 @@ admin:
     user_unbanned: "تم إلغاء حظر المستخدم في المجتمع"
     visibility_status: "الرؤية"
     your_role: "دورك"
+    disable_message: "هل أنت متأكد من أنك تريد تعطيل المجتمع؟ سيصبح غير متاح للأعضاء."
+    disable_title: "تعطيل المجتمع؟"
 
   community_actions:
     open_app: "الفتح في altteam"
@@ -263,6 +266,32 @@ admin:
     store: "المتجر"
     store_desc: "الإطارات، فقاعات الدردشة، الملصقات"
     title: "لوحة الإدارة"
+
+    online: "المتصلون"
+    online_desc: "قائمة المستخدمين المتصلين الآن"
+
+  discover:
+    title: "Discover"
+    banners_empty: "لا توجد لافتات"
+    tab_banners: "اللافتات"
+    tab_picks: "اختيار الفريق"
+    banner_add: "إضافة لافتة"
+    banner_edit: "تعديل اللافتة"
+    banner_pick_image: "اختيار صورة"
+    banner_link: "رابط (اختياري)"
+    banner_deeplink: "رابط عميق (اختياري)"
+    banner_segment: "الشريحة"
+    delete_banner_title: "حذف اللافتة؟"
+    delete_banner_message: "لا يمكن التراجع عن هذا الإجراء."
+    pick_add: "إضافة مجتمع"
+    picks_empty: "لا توجد مجتمعات في الاختيار"
+    search_hint: "اسم المجتمع أو amino ID"
+    search_empty: "لم يتم العثور على شيء"
+  online:
+    count: "المستخدمون المتصلون: {count}"
+    empty: "لم يتم العثور على مستخدمين"
+    disabled: "معطّل"
+    title: "المتصلون"
 
   password_reset:
     button_submit: "إعادة تعيين كلمة المرور"

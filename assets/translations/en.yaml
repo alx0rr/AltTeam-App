@@ -14,6 +14,7 @@ common:
   retry: "Retry"
   save: "Save"
   unknown: "Unknown"
+  delete: "Delete"
 
 auth:
   login:
@@ -191,6 +192,8 @@ admin:
     user_unbanned: "User unbanned in community"
     visibility_status: "Visibility"
     your_role: "Your Role"
+    disable_message: "Are you sure you want to disable the community? It will become unavailable to members."
+    disable_title: "Disable community?"
 
   community_actions:
     open_app: "Open in altteam"
@@ -263,6 +266,32 @@ admin:
     store: "Store"
     store_desc: "Frames, chat bubbles, stickers"
     title: "Admin Panel"
+
+    online: "Online"
+    online_desc: "List of users who are online now"
+
+  discover:
+    title: "Discover"
+    banners_empty: "No banners"
+    tab_banners: "Banners"
+    tab_picks: "Team Picks"
+    banner_add: "Add Banner"
+    banner_edit: "Edit Banner"
+    banner_pick_image: "Choose Image"
+    banner_link: "Link (optional)"
+    banner_deeplink: "Deeplink (optional)"
+    banner_segment: "Segment"
+    delete_banner_title: "Delete banner?"
+    delete_banner_message: "This action cannot be undone."
+    pick_add: "Add Community"
+    picks_empty: "No communities in picks"
+    search_hint: "Community name or amino ID"
+    search_empty: "Nothing found"
+  online:
+    count: "Users online: {count}"
+    empty: "No users found"
+    disabled: "Disabled"
+    title: "Online"
 
   password_reset:
     button_submit: "Reset Password"

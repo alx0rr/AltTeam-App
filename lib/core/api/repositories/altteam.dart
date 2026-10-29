@@ -1,4 +1,5 @@
 import '../network/api.dart';
+import 'dart:typed_data';
 
 class AltTemRepository {
 
@@ -145,6 +146,99 @@ class AltTemRepository {
   Future<void> reorderDiscoverTeamPicks(List<String> ids) async {
     await Api.post('/g/s/altteam/discover/picks/reorder', body: {"picks": ids});
   }
+
+
+
+  // STORE
+
+  Future<Map<String, dynamic>> getAvatarFrames() async {
+    return await Api.get('/g/s/altteam/altstore/avatar-frame');
+  }
+
+  Future<Map<String, dynamic>> createAvatarFrame({
+    required String resourceUrl,
+    String? icon,
+    int frameType = 1,
+    String description = '',
+    int price = 0,
+    int? restrictType,
+    int? discountStatus,
+    int? discountValue,
+    int? availableDuration,
+    List<int>? availableNdcIds,
+  }) async {
+    return await Api.post('/g/s/altteam/altstore/avatar-frame', body: {
+      "resourceUrl": resourceUrl,
+      if (icon != null) "icon": icon,
+      "frameType": frameType,
+      "description": description,
+      "price": price,
+      if (restrictType != null) "restrictType": restrictType,
+      if (discountStatus != null) "discountStatus": discountStatus,
+      if (discountValue != null) "discountValue": discountValue,
+      if (availableDuration != null) "availableDuration": availableDuration,
+      if (availableNdcIds != null) "availableNdcIds": availableNdcIds,
+    });
+  }
+
+  Future<void> editAvatarFrame(String frameId, Map<String, dynamic> changes) async {
+    await Api.post('/g/s/altteam/altstore/avatar-frame/$frameId/edit',
+        body: changes);
+  }
+
+  Future<void> deleteAvatarFrame(String frameId) async {
+    await Api.post('/g/s/altteam/altstore/avatar-frame/$frameId/delete');
+  }
+
+  Future<Map<String, dynamic>> getChatBubbles() async {
+    return await Api.get('/g/s/altteam/altstore/chat-bubble');
+  }
+
+  Future<Map<String, dynamic>> createChatBubble({
+    required String resourceUrl,
+    String? backgroundImage,
+    String? bannerImage,
+    int price = 0,
+    int? restrictType,
+    int? discountStatus,
+    int? discountValue,
+    int? availableDuration,
+    List<int>? availableNdcIds,
+  }) async {
+    return await Api.post('/g/s/altteam/altstore/chat-bubble', body: {
+      "resourceUrl": resourceUrl,
+      if (backgroundImage != null) "backgroundImage": backgroundImage,
+      if (bannerImage != null) "bannerImage": bannerImage,
+      "price": price,
+      if (restrictType != null) "restrictType": restrictType,
+      if (discountStatus != null) "discountStatus": discountStatus,
+      if (discountValue != null) "discountValue": discountValue,
+      if (availableDuration != null) "availableDuration": availableDuration,
+      if (availableNdcIds != null) "availableNdcIds": availableNdcIds,
+    });
+  }
+
+  Future<void> editChatBubble(String bubbleId, Map<String, dynamic> changes) async {
+    await Api.post('/g/s/altteam/altstore/chat-bubble/$bubbleId/edit',
+        body: changes);
+  }
+
+  Future<void> deleteChatBubble(String bubbleId) async {
+    await Api.post('/g/s/altteam/altstore/chat-bubble/$bubbleId/delete');
+  }
+
+
+  Future<Map<String, dynamic>> uploadStoreArchive(
+    Uint8List zipBytes, {
+    required String target, // 'avatar-frame' | 'chat-bubble' |
+  }) async {
+    return await Api.post(
+      '/g/s/media/upload/target/$target',
+      body: zipBytes,
+      headers: {'Content-Type': 'application/octet-stream'},
+    );
+  }
+
 
 }
 

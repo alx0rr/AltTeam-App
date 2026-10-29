@@ -4,6 +4,9 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/api/repositories/altacm.dart';
 import '../../../../core/api/repositories/search.dart';
+import '../../../core/api/repositories/links.dart';
+import '../../../core/api/objects/args/objTypes.dart';
+import '../../../../core/api/repositories/users.dart';
 import 'community_roles.dart';
 import 'deps.dart';
 import 'safe_notify.dart';
@@ -13,22 +16,29 @@ class MembersController extends ChangeNotifier with SafeNotify {
     required this.ndcId,
     required AltACMRepository acm,
     required SearchRepository search,
+    required LinksRepository links,
+    required UsersRepository users,
     required this.canTransferAgent,
     required this.onDataChanged,
     required this.afterTransfer,
     required this.notify,
   })  : _acm = acm,
-        _search = search;
+        _search = search,
+        _links = links,
+        _users = users;
 
   final int ndcId;
   final AltACMRepository _acm;
   final SearchRepository _search;
+  final LinksRepository _links;
+  final UsersRepository _users;
 
   final bool Function() canTransferAgent;
   final VoidCallback onDataChanged;
 
   final Future<void> Function() afterTransfer;
   final Notify notify;
+  static final _linkRe = RegExp(r'^https?://', caseSensitive: false);
 
   final searchField = TextEditingController();
   Timer? _debounce;
@@ -72,6 +82,31 @@ class MembersController extends ChangeNotifier with SafeNotify {
     _debounce = Timer(const Duration(milliseconds: 400), () => search(q));
   }
 
+
+  bool _isLink(String q) => _linkRe.hasMatch(q) || q.contains('/u/');
+
+  Future<String> _openFromLink(String link) async {
+    final data = await _links.getFromLink(link);
+    final info = data['linkInfoV2']?['extensions']?['linkInfo'];
+    if (info is! Map) {
+      throw Exception(AppLocalizations.t('admin.moderation.errors.wrong_link'));
+    }
+
+    final type = info['objectType'];
+
+    if (type == ObjectTypes.profile) {
+      final uid = info['objectId'];
+      if (uid is! String || uid.isEmpty) {
+        throw Exception(AppLocalizations.t('admin.moderation.errors.wrong_link'));
+      }
+      return uid;
+    }
+
+    throw Exception(AppLocalizations.t('admin.moderation.errors.wrong_link'));
+  }
+
+
+
   Future<void> search(String raw) async {
     final q = raw.trim();
     _debounce?.cancel();
@@ -85,13 +120,21 @@ class MembersController extends ChangeNotifier with SafeNotify {
     loading = true;
     notifyListeners();
     try {
-      final res = await _search.searchUser(ndcId: ndcId, q: q);
-      if (query != q) return;
-      users = (res['userProfileList'] as List? ?? [])
-          .map((e) => (e as Map).cast<String, dynamic>())
-          .toList();
-      loading = false;
-      notifyListeners();
+      if (_isLink(raw)) {
+        String uid = await _openFromLink(raw);
+        final user = await _users.getUserProfile(uid, ndcId);
+        users = [user];
+        loading = false;
+        notifyListeners();
+      } else {
+        final res = await _search.searchUser(ndcId: ndcId, q: q);
+        if (query != q) return;
+        users = (res['userProfileList'] as List? ?? [])
+            .map((e) => (e as Map).cast<String, dynamic>())
+            .toList();
+        loading = false;
+        notifyListeners();
+      }
     } catch (e) {
       if (query != q) return;
       loading = false;

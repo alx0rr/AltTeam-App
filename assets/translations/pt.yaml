@@ -14,6 +14,7 @@ common:
   retry: "Tentar novamente"
   save: "Salvar"
   unknown: "Desconhecido"
+  delete: "Excluir"
 
 auth:
   login:
@@ -191,6 +192,8 @@ admin:
     user_unbanned: "Usuário desbanido na comunidade"
     visibility_status: "Visibilidade"
     your_role: "Seu cargo"
+    disable_message: "Tem certeza de que deseja desativar a comunidade? Ela ficará indisponível para os membros."
+    disable_title: "Desativar comunidade?"
 
   community_actions:
     open_app: "Abrir no altteam"
@@ -263,6 +266,32 @@ admin:
     store: "Loja"
     store_desc: "Molduras, balões de chat, adesivos"
     title: "Painel de Administração"
+
+    online: "Online"
+    online_desc: "Lista de usuários que estão online agora"
+
+  discover:
+    title: "Discover"
+    banners_empty: "Nenhum banner"
+    tab_banners: "Banners"
+    tab_picks: "Escolhas da equipe"
+    banner_add: "Adicionar banner"
+    banner_edit: "Editar banner"
+    banner_pick_image: "Escolher imagem"
+    banner_link: "Link (opcional)"
+    banner_deeplink: "Deeplink (opcional)"
+    banner_segment: "Segmento"
+    delete_banner_title: "Excluir banner?"
+    delete_banner_message: "Esta ação não pode ser desfeita."
+    pick_add: "Adicionar comunidade"
+    picks_empty: "Nenhuma comunidade nas escolhas"
+    search_hint: "Nome ou amino ID da comunidade"
+    search_empty: "Nada encontrado"
+  online:
+    count: "Usuários online: {count}"
+    empty: "Nenhum usuário encontrado"
+    disabled: "Desativado"
+    title: "Online"
 
   password_reset:
     button_submit: "Redefinir senha"

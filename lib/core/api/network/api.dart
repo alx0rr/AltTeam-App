@@ -20,6 +20,7 @@ class Api {
     _requester = Requester(
       userAgent: UserAgent,
       deviceId: deviceId,
+      language: Storage.locale
     );
 
     _requester.refreshSession = _refreshSession;
@@ -130,6 +131,10 @@ static void resetBaseUrl() => _requester.baseUrl = apiUrl;
     Storage.setTelegramId(telegramId is int ? telegramId : int.tryParse('$telegramId'));
     _requester.sid = sid;
     _requester.userId = userId?.toString();
+  }
+
+  static void editLocale(String lang){
+    _requester.language = lang;
   }
 
   static String getDeviceId() {

@@ -53,13 +53,20 @@ class AppLocalizations {
 
 
   static Future<List<LocaleInfo>> availableLocales() async {
-    return [
-      LocaleInfo(code: 'en', name: 'English'),
-      LocaleInfo(code: 'ru', name: 'Русский'),
-      LocaleInfo(code: 'es', name: 'Español'),
-      LocaleInfo(code: 'ar', name: 'العربية'),
-      LocaleInfo(code: 'pt', name: 'Português'),
-    ];
+  return [
+    LocaleInfo(code: 'en', name: 'English'),
+    LocaleInfo(code: 'ru', name: 'Русский'),
+    LocaleInfo(code: 'es', name: 'Español'),
+    LocaleInfo(code: 'ar', name: 'العربية'),
+    LocaleInfo(code: 'pt', name: 'Português'),
+    LocaleInfo(code: 'uk', name: 'Українська'),
+    LocaleInfo(code: 'de', name: 'Deutsch'),
+    LocaleInfo(code: 'fr', name: 'Français'),
+    LocaleInfo(code: 'hi', name: 'हिन्दी'),
+    LocaleInfo(code: 'ja', name: '日本語'),
+    LocaleInfo(code: 'ko', name: '한국어'),
+    LocaleInfo(code: 'zh', name: '中文'),
+  ];
   }
 }
 

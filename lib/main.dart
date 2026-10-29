@@ -134,6 +134,7 @@ class _AltTeamAppState extends State<AltTeamApp> {
   void _setLocale(Locale locale) {
     setState(() => _locale = locale);
     Storage.setLocale(locale.languageCode);
+    Api.editLocale(locale.languageCode);
     AppLocalizations.load(locale.languageCode);
   }
 

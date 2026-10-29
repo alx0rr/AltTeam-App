@@ -9,7 +9,7 @@ import 'package:flutter/foundation.dart';
 class Requester {
   final String userAgent;
   final String deviceId;
-  final String language;
+  String language;
   String? sid;
   String? userId;
   late final Dio _dio;
@@ -38,7 +38,11 @@ class Requester {
 
   Map<String, String> _buildHeaders({dynamic data, Map<String, String>? extraHeaders}) {
     final headers = Map<String, String>.from(basicHeaders);
-    headers['NDCLANG'] = language;
+
+    if (language.isNotEmpty){
+      headers['Accept-Language'] = language;
+      headers['NDCLANG'] = language;
+    }
     headers['User-Agent'] = userAgent;
     headers['NDCDEVICEID'] = deviceId;
 
