@@ -96,6 +96,9 @@ admin:
     show_communities: "إظهار المجتمعات"
 
   community:
+    mode_search: "بحث"
+    mode_admins: "المشرفون"
+    admins_empty: "لم يتم العثور على مشرفين"
     agent_title: "الوكيل"
     badge_banned: "محظور"
     badge_you: "أنت"

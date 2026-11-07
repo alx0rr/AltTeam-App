@@ -96,6 +96,9 @@ admin:
     show_communities: "कम्युनिटी दिखाएँ"
 
   community:
+    mode_search: "खोजें"
+    mode_admins: "एडमिन"
+    admins_empty: "कोई एडमिन नहीं मिला"
     agent_title: "एजेंट"
     badge_banned: "बैन"
     badge_you: "आप"

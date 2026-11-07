@@ -200,5 +200,33 @@ Future<Map<String, dynamic>> strikeUser({
   }
 
 
+
+Future<Map<String, dynamic>> getUsersByType({
+  int? ndcId,
+  String? type, // recent | banned | featured | leaders | curators
+  int? start,
+  int? size,
+  String? pageToken,
+}) async {
+
+  final queryParams = <String, String>{
+    if (type != null && type.isNotEmpty) 'type': type,
+    if (start != null) 'start': start.toString(),
+    if (size != null) 'size': size.toString(),
+    if (pageToken != null && pageToken.isNotEmpty) 'pageToken': pageToken,
+  };
+
+  final uri = Uri(
+    path: '/x${ndcId ?? 0}/s/user-profile',
+    queryParameters: queryParams.isEmpty ? null : queryParams,
+  );
+
+  return await Api.get(uri.toString());
 }
+
+
+
+
+}
+
 

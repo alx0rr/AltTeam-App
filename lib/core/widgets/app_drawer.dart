@@ -100,7 +100,7 @@ class AppDrawer extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8),
                 onTap: () {
                   Navigator.of(ctx).pop();
-                  _openUrl('https://github.com/alx0rr');
+                  _openUrl('https://alx0rr.github.io');
                 },
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),

@@ -96,6 +96,9 @@ admin:
     show_communities: "显示社区"
 
   community:
+    mode_search: "搜索"
+    mode_admins: "管理员"
+    admins_empty: "未找到管理员"
     agent_title: "代理人"
     badge_banned: "已封禁"
     badge_you: "你"

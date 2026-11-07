@@ -96,6 +96,9 @@ admin:
     show_communities: "コミュニティを表示"
 
   community:
+    mode_search: "検索"
+    mode_admins: "管理者"
+    admins_empty: "管理者が見つかりません"
     agent_title: "エージェント"
     badge_banned: "BAN済み"
     badge_you: "あなた"

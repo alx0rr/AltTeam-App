@@ -96,6 +96,9 @@ admin:
     show_communities: "Afficher les communautés"
 
   community:
+    mode_search: "Recherche"
+    mode_admins: "Admins"
+    admins_empty: "Aucun admin trouvé"
     agent_title: "Agent"
     badge_banned: "Banni"
     badge_you: "Vous"

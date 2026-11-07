@@ -97,6 +97,9 @@ admin:
     show_communities: "Показать сообщества"
 
   community:
+    mode_search: "Поиск"
+    mode_admins: "Админы"
+    admins_empty: "Админы не найдены"
     agent_title: "Агент"
     badge_banned: "Заблокирован"
     badge_you: "Вы"

@@ -96,6 +96,9 @@ admin:
     show_communities: "Показати спільноти"
 
   community:
+    mode_search: "Пошук"
+    mode_admins: "Адміни"
+    admins_empty: "Адмінів не знайдено"
     agent_title: "Агент"
     badge_banned: "Забанений"
     badge_you: "Ви"

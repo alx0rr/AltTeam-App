@@ -6,6 +6,7 @@ import '../community_roles.dart';
 import '../deps.dart';
 import '../edit_community_controller.dart';
 import '../edit_tab.dart';
+import '../members_controller.dart';
 import '../widgets/manage_member_sheet.dart';
 import '../widgets/member_tile.dart';
 import '../widgets/ui.dart';
@@ -32,6 +33,7 @@ class MembersTab extends EditTab {
       builder: (context, _) {
         final colors = AppColors.of(context);
         final myRole = c.viewerNdcRole;
+        final isAdmins = m.mode == MembersMode.admins;
 
         return TabScroll(
           children: [
@@ -47,15 +49,35 @@ class MembersTab extends EditTab {
               ),
               const SizedBox(height: 12),
             ],
-            LabeledField(
-              controller: m.searchField,
-              hint: AppLocalizations.t('admin.community.search_users_hint'),
-              prefixIcon: Icons.search_rounded,
-              textInputAction: TextInputAction.search,
-              onChanged: m.onQueryChanged,
-              onSubmitted: m.search,
+            SegmentedButton<MembersMode>(
+              showSelectedIcon: false,
+              segments: [
+                ButtonSegment(
+                  value: MembersMode.search,
+                  icon: const Icon(Icons.search_rounded),
+                  label: Text(AppLocalizations.t('admin.community.mode_search')),
+                ),
+                ButtonSegment(
+                  value: MembersMode.admins,
+                  icon: const Icon(Icons.shield_rounded),
+                  label: Text(AppLocalizations.t('admin.community.mode_admins')),
+                ),
+              ],
+              selected: {m.mode},
+              onSelectionChanged: (s) => m.setMode(s.first),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
+            if (!isAdmins) ...[
+              LabeledField(
+                controller: m.searchField,
+                hint: AppLocalizations.t('admin.community.search_users_hint'),
+                prefixIcon: Icons.search_rounded,
+                textInputAction: TextInputAction.search,
+                onChanged: m.onQueryChanged,
+                onSubmitted: m.search,
+              ),
+              const SizedBox(height: 8),
+            ],
             Align(
               alignment: Alignment.centerLeft,
               child: TextButton.icon(
@@ -69,35 +91,78 @@ class MembersTab extends EditTab {
               ),
             ),
             const SizedBox(height: 8),
-            if (m.loading)
-              Padding(
-                padding: const EdgeInsets.only(top: 48),
-                child: Center(
-                  child: CircularProgressIndicator(color: colors.accentPrimary),
-                ),
-              )
-            else if (m.users.isEmpty)
-              EmptyState(
-                icon: m.query.isEmpty
-                    ? Icons.person_search_rounded
-                    : Icons.search_off_rounded,
-                text: AppLocalizations.t(m.query.isEmpty
-                    ? 'admin.community.search_users_hint'
-                    : 'admin.community.search_users_empty'),
-              )
+            if (isAdmins)
+              ..._adminsList(context, c, colors)
             else
-              for (final u in m.users)
-                MemberTile(
-                  user: u,
-                  isSelf: m.isSelf(u),
-                  onOpen: () => _openProfile(context, c, u),
-                  onManage: (m.canChangeRole(u) || m.canTransfer(u))
-                      ? () => _manage(context, c, u)
-                      : null,
-                ),
+              ..._searchList(context, c, colors),
           ],
         );
       },
+    );
+  }
+
+  List<Widget> _searchList(
+    BuildContext context,
+    EditCommunityController c,
+    AppPalette colors,
+  ) {
+    final m = c.members;
+
+    if (m.loading) return [_loader(colors)];
+    if (m.users.isEmpty) {
+      return [
+        EmptyState(
+          icon: m.query.isEmpty
+              ? Icons.person_search_rounded
+              : Icons.search_off_rounded,
+          text: AppLocalizations.t(m.query.isEmpty
+              ? 'admin.community.search_users_hint'
+              : 'admin.community.search_users_empty'),
+        ),
+      ];
+    }
+    return [for (final u in m.users) _tile(context, c, u)];
+  }
+
+  List<Widget> _adminsList(
+    BuildContext context,
+    EditCommunityController c,
+    AppPalette colors,
+  ) {
+    final m = c.members;
+
+    if (m.adminsLoading && m.admins.isEmpty) return [_loader(colors)];
+    if (m.admins.isEmpty) {
+      return [
+        EmptyState(
+          icon: Icons.shield_outlined,
+          text: AppLocalizations.t('admin.community.admins_empty'),
+        ),
+      ];
+    }
+    return [for (final u in m.admins) _tile(context, c, u)];
+  }
+
+  Widget _loader(AppPalette colors) => Padding(
+        padding: const EdgeInsets.only(top: 48),
+        child: Center(
+          child: CircularProgressIndicator(color: colors.accentPrimary),
+        ),
+      );
+
+  Widget _tile(
+    BuildContext context,
+    EditCommunityController c,
+    Map<String, dynamic> u,
+  ) {
+    final m = c.members;
+    return MemberTile(
+      user: u,
+      isSelf: m.isSelf(u),
+      onOpen: () => _openProfile(context, c, u),
+      onManage: (m.canChangeRole(u) || m.canTransfer(u))
+          ? () => _manage(context, c, u)
+          : null,
     );
   }
 

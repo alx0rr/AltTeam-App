@@ -3,7 +3,7 @@ description: "AltAmino Control Panel for Developers and Volunteers."
 
 
 publish_to: 'none'
-version: 1.2.3+1
+version: 1.2.4+1
 
 environment:
   sdk: '>=3.10.0 <4.0.0'

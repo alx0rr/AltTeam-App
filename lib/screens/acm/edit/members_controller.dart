@@ -11,6 +11,8 @@ import 'community_roles.dart';
 import 'deps.dart';
 import 'safe_notify.dart';
 
+enum MembersMode { search, admins }
+
 class MembersController extends ChangeNotifier with SafeNotify {
   MembersController({
     required this.ndcId,
@@ -39,6 +41,7 @@ class MembersController extends ChangeNotifier with SafeNotify {
   final Future<void> Function() afterTransfer;
   final Notify notify;
   static final _linkRe = RegExp(r'^https?://', caseSensitive: false);
+  static const _adminTypes = ['leaders', 'curators'];
 
   final searchField = TextEditingController();
   Timer? _debounce;
@@ -46,6 +49,11 @@ class MembersController extends ChangeNotifier with SafeNotify {
   List<Map<String, dynamic>> users = [];
   bool loading = false;
   String query = '';
+
+  MembersMode mode = MembersMode.search;
+  List<Map<String, dynamic>> admins = [];
+  bool adminsLoading = false;
+  bool _adminsLoaded = false;
 
   @override
   void dispose() {
@@ -55,7 +63,6 @@ class MembersController extends ChangeNotifier with SafeNotify {
   }
 
   String _clean(Object e) => e.toString().replaceFirst('Exception: ', '');
-
 
   bool isSelf(Map<String, dynamic> user) =>
       user['uid']?.toString() == Storage.userId;
@@ -69,6 +76,38 @@ class MembersController extends ChangeNotifier with SafeNotify {
   bool canTransfer(Map<String, dynamic> user) =>
       canTransferAgent();
 
+  void setMode(MembersMode m) {
+    if (mode == m) return;
+    mode = m;
+    notifyListeners();
+    if (m == MembersMode.admins && !_adminsLoaded) loadAdmins();
+  }
+
+  Future<void> loadAdmins() async {
+    adminsLoading = true;
+    notifyListeners();
+    try {
+      final results = await Future.wait(
+        _adminTypes.map((t) => _users.getUsersByType(ndcId: ndcId, type: t)),
+      );
+      final seen = <String>{};
+      final list = <Map<String, dynamic>>[];
+      for (final res in results) {
+        for (final e in (res['userProfileList'] as List? ?? [])) {
+          final u = (e as Map).cast<String, dynamic>();
+          final uid = u['uid']?.toString();
+          if (uid != null && seen.add(uid)) list.add(u);
+        }
+      }
+      admins = list;
+      _adminsLoaded = true;
+    } catch (e) {
+      notify(_clean(e), error: true);
+    } finally {
+      adminsLoading = false;
+      notifyListeners();
+    }
+  }
 
   void onQueryChanged(String q) {
     _debounce?.cancel();
@@ -81,7 +120,6 @@ class MembersController extends ChangeNotifier with SafeNotify {
     }
     _debounce = Timer(const Duration(milliseconds: 400), () => search(q));
   }
-
 
   bool _isLink(String q) => _linkRe.hasMatch(q) || q.contains('/u/');
 
@@ -104,8 +142,6 @@ class MembersController extends ChangeNotifier with SafeNotify {
 
     throw Exception(AppLocalizations.t('admin.moderation.errors.wrong_link'));
   }
-
-
 
   Future<void> search(String raw) async {
     final q = raw.trim();
@@ -146,8 +182,8 @@ class MembersController extends ChangeNotifier with SafeNotify {
   void afterProfileVisit() {
     onDataChanged();
     if (query.isNotEmpty) search(query);
+    if (_adminsLoaded) loadAdmins();
   }
-
 
   Future<void> changeRole(Map<String, dynamic> user, int newRole) async {
     final uid = user['uid']?.toString();
@@ -164,6 +200,7 @@ class MembersController extends ChangeNotifier with SafeNotify {
       }
       onDataChanged();
       notify(AppLocalizations.t('admin.community.role_updated'));
+      if (_adminsLoaded) loadAdmins();
     } catch (e) {
       user['role'] = previous;
       notifyListeners();
@@ -183,6 +220,7 @@ class MembersController extends ChangeNotifier with SafeNotify {
       notifyListeners();
       await afterTransfer();
       if (query.isNotEmpty) await search(query);
+      if (_adminsLoaded) await loadAdmins();
     } catch (e) {
       notify(_clean(e), error: true);
     }

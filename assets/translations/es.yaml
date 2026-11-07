@@ -96,6 +96,9 @@ admin:
     show_communities: "Mostrar comunidades"
 
   community:
+    mode_search: "Buscar"
+    mode_admins: "Admins"
+    admins_empty: "No se encontraron admins"
     agent_title: "Agente"
     badge_banned: "Bloqueado"
     badge_you: "Tú"
