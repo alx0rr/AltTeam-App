@@ -87,6 +87,10 @@ profile:
   title: "我的资料"
 
 admin:
+  history:
+      title: "管理历史"
+      empty: "没有历史记录"
+      load_more: "加载更多"
   buttons:
     apply_sanctions: "实施处罚"
     confirm_ban: "封禁"

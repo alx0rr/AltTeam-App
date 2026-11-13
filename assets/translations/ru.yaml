@@ -88,6 +88,10 @@ profile:
   title: "Мой профиль"
 
 admin:
+  history:
+      title: "История модерации"
+      empty: "История пуста"
+      load_more: "Загрузить ещё"
   buttons:
     apply_sanctions: "Применить санкции"
     confirm_ban: "Заблокировать"

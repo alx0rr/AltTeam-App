@@ -1,9 +1,9 @@
 name: AltTeam
-description: "AltAmino Control Panel for Developers and Volunteers."
+description: "AltAmino Control Panel for Developers, Creators and Volunteers."
 
 
 publish_to: 'none'
-version: 1.2.4+1
+version: 1.2.5+1
 
 environment:
   sdk: '>=3.10.0 <4.0.0'

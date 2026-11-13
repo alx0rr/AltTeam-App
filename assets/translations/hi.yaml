@@ -87,6 +87,10 @@ profile:
   title: "मेरी प्रोफ़ाइल"
 
 admin:
+  history:
+      title: "मॉडरेशन इतिहास"
+      empty: "कोई इतिहास नहीं"
+      load_more: "और लोड करें"
   buttons:
     apply_sanctions: "प्रतिबंध लागू करें"
     confirm_ban: "बैन करें"

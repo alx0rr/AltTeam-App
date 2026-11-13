@@ -87,6 +87,10 @@ profile:
   title: "マイプロフィール"
 
 admin:
+  history:
+      title: "モデレーション履歴"
+      empty: "履歴はありません"
+      load_more: "さらに読み込む"
   buttons:
     apply_sanctions: "制裁を適用"
     confirm_ban: "BAN"

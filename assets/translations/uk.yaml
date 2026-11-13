@@ -87,6 +87,10 @@ profile:
   title: "Мій профіль"
 
 admin:
+  history:
+      title: "Історія модерації"
+      empty: "Історія порожня"
+      load_more: "Завантажити ще"
   buttons:
     apply_sanctions: "Застосувати санкції"
     confirm_ban: "Забанити"

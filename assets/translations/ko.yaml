@@ -87,6 +87,10 @@ profile:
   title: "내 프로필"
 
 admin:
+  history:
+      title: "운영 기록"
+      empty: "기록이 없습니다"
+      load_more: "더 보기"
   buttons:
     apply_sanctions: "제재 적용"
     confirm_ban: "차단"

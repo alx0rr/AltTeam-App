@@ -87,6 +87,10 @@ profile:
   title: "My Profile"
 
 admin:
+  history:
+      title: "Moderation History"
+      empty: "No history"
+      load_more: "Load more"
   buttons:
     apply_sanctions: "Apply Sanctions"
     confirm_ban: "Ban"

@@ -83,4 +83,18 @@ Future<Map<String, dynamic>> editCommunity(
   }
 
 
+   Future<Map<String, dynamic>> getObjectModerationHistory(
+    int ndcId,
+    String objectId,
+    String? pageToken,{
+    String pagingType="t",
+    int objectType = 0,
+    int size = 25,
+  }) async {
+    return await Api.get(
+      '/x$ndcId/s/admin/operation?objectId=$objectId&objectType=$objectType&pagingType=$pagingType&size=$size&pageToken=${pageToken ?? ""}',
+    );
+  } 
+
+
 }

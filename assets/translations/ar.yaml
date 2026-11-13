@@ -87,6 +87,10 @@ profile:
   title: "ملفي الشخصي"
 
 admin:
+  history:
+      title: "سجل الإشراف"
+      empty: "لا يوجد سجل"
+      load_more: "تحميل المزيد"
   buttons:
     apply_sanctions: "تطبيق العقوبات"
     confirm_ban: "حظر"

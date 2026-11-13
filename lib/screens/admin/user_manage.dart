@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
-
+ 
 import '../../core/api/constants.dart';
 import '../../core/api/objects/args/roles.dart';
 import '../../core/api/repositories/altacm.dart';
@@ -14,7 +14,8 @@ import '../../core/widgets/admin_header.dart';
 import '../../core/widgets/app_background.dart';
 import '../../core/widgets/app_snackbar.dart';
 import '../../core/widgets/user_avatar.dart';
-
+import 'moderation_history_tab.dart';
+ 
 class UserManageScreen extends StatefulWidget {
   const UserManageScreen({
     super.key,
@@ -22,16 +23,16 @@ class UserManageScreen extends StatefulWidget {
     this.initialProfile,
     this.ndcId,
   });
-
+ 
   final String uid;
   final Map<String, dynamic>? initialProfile;
-
+ 
   final int? ndcId;
-
+ 
   @override
   State<UserManageScreen> createState() => _UserManageScreenState();
 }
-
+ 
 class _UserManageScreenState extends State<UserManageScreen> {
   static const List<int> _editableRoles = [
     RoleTypes.roleUser,
@@ -39,29 +40,29 @@ class _UserManageScreenState extends State<UserManageScreen> {
     RoleTypes.roleAltAminoAdmin,
     RoleTypes.roleAltAminoStaff,
   ];
-
-
+ 
+ 
   static const List<int> _ndcEditableRoles = [
     RoleTypes.roleUser,
     RoleTypes.roleCurator,
     RoleTypes.roleLeader,
   ];
-
+ 
   final _altTeamRepo = AltTemRepository();
   final _usersRepo = UsersRepository();
   final _acmRepo = AltACMRepository();
-
+ 
   late Map<String, dynamic> _user;
   Map<String, dynamic>? _teamMember;
   List<Map<String, dynamic>> _communities = [];
-
+ 
   bool _loading = true;
   bool _busy = false;
   bool _showCommunities = true;
-
+ 
   int? _viewerNdcRole;
   bool _roleChecked = false;
-
+ 
   bool get _isStaffViewer => RoleTypes.isStaffRole(Storage.role);
   bool get _isTeam => Storage.role == RoleTypes.roleAltAminoStaff;
   bool get _communityMode =>
@@ -70,7 +71,7 @@ class _UserManageScreenState extends State<UserManageScreen> {
       RoleTypes.isNdcMainAdminRole(_viewerNdcRole);
   bool get _denied => _roleChecked && !_isStaffViewer && !_communityMode;
   bool get _isSelf => widget.uid == Storage.userId;
-
+ 
   bool get _isUserBanned => (_user['status'] ?? 0) == 9;
   bool get _isUserDeleted => (_user['status'] ?? 0) == 11;
   bool get _isUserHidden => _user['hidden'] == true;
@@ -81,7 +82,7 @@ class _UserManageScreenState extends State<UserManageScreen> {
         role: _user['role'] as int?,
       );
   int get _teamRole => (_teamMember?['role'] as int?) ?? RoleTypes.roleUser;
-
+ 
   @override
   void initState() {
     super.initState();
@@ -90,7 +91,7 @@ class _UserManageScreenState extends State<UserManageScreen> {
     _roleChecked = _isStaffViewer || widget.ndcId == null;
     _load();
   }
-
+ 
   Map<String, dynamic> _placeholder() => {
         'uid': widget.uid,
         'aminoId': null,
@@ -102,7 +103,7 @@ class _UserManageScreenState extends State<UserManageScreen> {
         'role': 0,
         'tagList': const <String>[],
       };
-
+ 
   Map<String, dynamic> _mapProfile(Map<String, dynamic> p) => {
         'uid': p['uid'] ?? widget.uid,
         'aminoId': p['aminoId'],
@@ -117,30 +118,30 @@ class _UserManageScreenState extends State<UserManageScreen> {
         'role': p['role'] as int? ?? 0,
         'tagList': (p['tagList'] as List?)?.cast<String>() ?? const <String>[],
       };
-
+ 
   String? _cleanIcon(dynamic raw) {
     if (raw is! String) return null;
     final v = raw.trim();
     return v.startsWith('http') ? v : null;
   }
-
+ 
   Map<String, dynamic> _unwrap(Map res) {
     final inner = res['userProfile'];
     return Map<String, dynamic>.from(inner is Map ? inner : res);
   }
-
+ 
   String _clean(Object e) => e.toString().replaceFirst('Exception: ', '');
-
+ 
   String? _emptyToNull(String? v) {
     final t = v?.trim() ?? '';
     return t.isEmpty ? null : t;
   }
-
+ 
   void _toast(String msg, {SnackType type = SnackType.success}) {
     if (!mounted) return;
     AppSnackbar.show(context, msg, type: type);
   }
-
+ 
   Future<void> _resolveViewerRole() async {
     try {
       final myUid = Storage.userId;
@@ -151,7 +152,7 @@ class _UserManageScreenState extends State<UserManageScreen> {
     } catch (_) {}
     if (mounted) setState(() => _roleChecked = true);
   }
-
+ 
   Future<void> _load() async {
     setState(() => _loading = true);
     if (!_roleChecked) await _resolveViewerRole();
@@ -167,7 +168,7 @@ class _UserManageScreenState extends State<UserManageScreen> {
     ]);
     if (mounted) setState(() => _loading = false);
   }
-
+ 
   Future<void> _loadProfile() async {
     try {
       final p = await _usersRepo.getUserProfile(
@@ -178,7 +179,7 @@ class _UserManageScreenState extends State<UserManageScreen> {
       setState(() => _user = _mapProfile(_unwrap(p)));
     } catch (_) {}
   }
-
+ 
   Future<void> _loadCommunities() async {
     try {
       final data = await _altTeamRepo.getUserCommunities(widget.uid);
@@ -218,7 +219,7 @@ class _UserManageScreenState extends State<UserManageScreen> {
       setState(() => _teamMember = found);
     } catch (_) {}
   }
-
+ 
   Future<bool> _guard(Future<void> Function() job, String okMsg) async {
     setState(() => _busy = true);
     try {
@@ -232,7 +233,7 @@ class _UserManageScreenState extends State<UserManageScreen> {
       if (mounted) setState(() => _busy = false);
     }
   }
-
+ 
   Future<bool> _confirm({
     required String title,
     required String body,
@@ -261,7 +262,7 @@ class _UserManageScreenState extends State<UserManageScreen> {
     );
     return res == true;
   }
-
+ 
   Future<String?> _askReason({
     required String title,
     required String message,
@@ -278,16 +279,56 @@ class _UserManageScreenState extends State<UserManageScreen> {
       ),
     );
   }
-
+ 
+  _ActionSpec _historyAction(int ndcId, AppPalette colors) => _ActionSpec(
+        Icons.history_rounded,
+        AppLocalizations.t('admin.history.title'),
+        colors.accentPrimary,
+        () => _showHistory(ndcId),
+      );
+ 
+  Future<void> _showHistory(int ndcId) {
+    final colors = AppColors.of(context);
+    return showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: colors.surfaceElevated,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => DraggableScrollableSheet(
+        expand: false,
+        initialChildSize: 0.8,
+        maxChildSize: 0.95,
+        builder: (ctx, scroll) => ListView(
+          controller: scroll,
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+          children: [
+            Text(
+              AppLocalizations.t('admin.history.title'),
+              style: TextStyle(
+                color: colors.textPrimary,
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: 12),
+            ModerationHistoryTab(uid: widget.uid, ndcId: ndcId),
+          ],
+        ),
+      ),
+    );
+  }
+ 
   List<_ActionSpec> _scopeActions(
       int ndcId, AppPalette colors, _ScopeState st) {
-    if (st.deleted) return [];
+    if (st.deleted) return [_historyAction(ndcId, colors)];
     final global = ndcId == 0;
     final showBan = st.banned != true;
     final showUnban = st.banned != false;
     final showHide = st.hidden != true;
     final showUnhide = st.hidden != false;
-
+ 
     return [
       _ActionSpec(
         Icons.warning_amber_rounded,
@@ -339,9 +380,10 @@ class _UserManageScreenState extends State<UserManageScreen> {
           colors.accentPrimary,
           () => _editCommunityRole(ndcId, st.role ?? RoleTypes.roleUser),
         ),
+      _historyAction(ndcId, colors),
     ];
   }
-
+ 
   Future<_ScopeState> _fetchScopeState(int ndcId) async {
     try {
       final res = await _usersRepo.getUserProfile(widget.uid, ndcId);
@@ -357,10 +399,10 @@ class _UserManageScreenState extends State<UserManageScreen> {
       return const _ScopeState();
     }
   }
-
+ 
   Future<void> _ban(int ndcId, {required bool ban}) async {
     if (ndcId == 0) return _banGlobal(ban);
-
+ 
     final reason = await _askReason(
       title: AppLocalizations.t(ban
           ? 'admin.community.ban_dialog_title'
@@ -373,7 +415,7 @@ class _UserManageScreenState extends State<UserManageScreen> {
       danger: ban,
     );
     if (reason == null) return;
-
+ 
     final ok = await _guard(() async {
       if (ban) {
         await _usersRepo.banUser(
@@ -385,12 +427,12 @@ class _UserManageScreenState extends State<UserManageScreen> {
     },
         AppLocalizations.t(
             ban ? 'admin.community.user_banned' : 'admin.community.user_unbanned'));
-
+ 
     if (ok && mounted && _communityMode) {
       setState(() => _user = {..._user, 'status': ban ? 9 : 0});
     }
   }
-
+ 
   Future<void> _banGlobal(bool ban) async {
     final ok = await _confirm(
       title: AppLocalizations.t(ban
@@ -404,7 +446,7 @@ class _UserManageScreenState extends State<UserManageScreen> {
       danger: ban,
     );
     if (!ok) return;
-
+ 
     final done = await _guard(() async {
       await _altTeamRepo.setModerationStatus(
         type: 'user',
@@ -414,12 +456,12 @@ class _UserManageScreenState extends State<UserManageScreen> {
     },
         AppLocalizations.t(
             ban ? 'admin.success.user_banned' : 'admin.success.user_unbanned'));
-
+ 
     if (done && mounted) {
       setState(() => _user = {..._user, 'status': ban ? 9 : 0});
     }
   }
-
+ 
   Future<void> _hide(int ndcId, {required bool hide}) async {
     final reason = await _askReason(
       title: AppLocalizations.t(
@@ -430,7 +472,7 @@ class _UserManageScreenState extends State<UserManageScreen> {
       danger: hide,
     );
     if (reason == null) return;
-
+ 
     final ok = await _guard(() async {
       if (hide) {
         await _usersRepo.hideUser(
@@ -440,12 +482,12 @@ class _UserManageScreenState extends State<UserManageScreen> {
             userId: widget.uid, ndcId: ndcId, reason: _emptyToNull(reason));
       }
     }, AppLocalizations.t(hide ? 'admin.mod.hidden_ok' : 'admin.mod.unhidden_ok'));
-
+ 
     if (ok && mounted && (ndcId == 0 || _communityMode)) {
       setState(() => _user = {..._user, 'hidden': hide});
     }
   }
-
+ 
   Future<List<Map<String, dynamic>>> _loadTemplates(
       int ndcId, bool strike) async {
     try {
@@ -460,19 +502,19 @@ class _UserManageScreenState extends State<UserManageScreen> {
       return [];
     }
   }
-
+ 
   Future<void> _sendNotice(int ndcId, {required bool strike}) async {
     setState(() => _busy = true);
     final templates = await _loadTemplates(ndcId, strike);
     if (!mounted) return;
     setState(() => _busy = false);
-
+ 
     final r = await showDialog<_NoticeResult>(
       context: context,
       builder: (_) => _NoticeDialog(templates: templates, strike: strike),
     );
     if (r == null) return;
-
+ 
     await _guard(() async {
       if (strike) {
         await _usersRepo.strikeUser(
@@ -496,14 +538,14 @@ class _UserManageScreenState extends State<UserManageScreen> {
         AppLocalizations.t(
             strike ? 'admin.mod.striked_ok' : 'admin.mod.warned_ok'));
   }
-
+ 
   bool _canEditNdcRole(int? targetRole) {
     if (!(_isStaffViewer || _communityMode)) return false;
     if (_isSelf && !_isStaffViewer) return false;
     if (targetRole == null) return true;
     return _ndcEditableRoles.contains(targetRole);
   }
-
+ 
   String _ndcRoleLabel(int role) {
     switch (role) {
       case RoleTypes.roleLeader:
@@ -514,14 +556,14 @@ class _UserManageScreenState extends State<UserManageScreen> {
         return AppLocalizations.t('admin.community.role_member');
     }
   }
-
+ 
   Future<void> _editCommunityRole(int ndcId, int currentRole) async {
     if (!(_isStaffViewer || _communityMode)) return;
-
+ 
     final current = _ndcEditableRoles.contains(currentRole)
         ? currentRole
         : RoleTypes.roleUser;
-
+ 
     final picked = await showDialog<int>(
       context: context,
       builder: (_) => _NdcRoleDialog(
@@ -531,7 +573,7 @@ class _UserManageScreenState extends State<UserManageScreen> {
       ),
     );
     if (picked == null || picked == current) return;
-
+ 
     final ok = await _guard(() async {
       if (picked == RoleTypes.roleUser) {
         await _acmRepo.unpromoteUser(widget.uid, ndcId);
@@ -539,16 +581,16 @@ class _UserManageScreenState extends State<UserManageScreen> {
         await _acmRepo.promoteUser(widget.uid, ndcId, picked);
       }
     }, AppLocalizations.t('admin.community.role_changed'));
-
+ 
     if (!ok || !mounted) return;
-
+ 
     if (_communityMode) {
       setState(() => _user = {..._user, 'role': picked});
     } else {
       _loadCommunities();
     }
   }
-
+ 
   String _roleLabel(int role) {
     switch (role) {
       case RoleTypes.roleAltAminoStaff:
@@ -567,7 +609,7 @@ class _UserManageScreenState extends State<UserManageScreen> {
         return AppLocalizations.t('profile.role.staff');
     }
   }
-
+ 
   Color _roleColor(int role, AppPalette colors) {
     switch (role) {
       case RoleTypes.roleAltAminoStaff:
@@ -584,22 +626,22 @@ class _UserManageScreenState extends State<UserManageScreen> {
         return colors.accentPrimary;
     }
   }
-
+ 
   Future<void> _openRoleDialog() async {
     final colors = AppColors.of(context);
     final dialogBg = Theme.of(context).dialogTheme.backgroundColor ??
         Theme.of(context).scaffoldBackgroundColor;
-
+ 
     final isMember = _teamMember != null;
     final currentRole = _teamRole;
     final roleEditable = _editableRoles.contains(currentRole);
-
+ 
     if (isMember && !roleEditable) {
       _toast(AppLocalizations.t('admin.roles.role_not_editable'),
           type: SnackType.error);
       return;
     }
-
+ 
     final ext = (_teamMember?['extensions'] as Map?) ?? const {};
     int selectedRole = currentRole;
     bool isTeamMember = ext['isMemberOfTeamAmino'] == true;
@@ -608,7 +650,7 @@ class _UserManageScreenState extends State<UserManageScreen> {
     final tagsController = TextEditingController(
       text: ((ext['tagList'] as List?) ?? const []).join(', '),
     );
-
+ 
     await showDialog(
       context: context,
       builder: (ctx) => StatefulBuilder(
@@ -759,7 +801,7 @@ class _UserManageScreenState extends State<UserManageScreen> {
     );
     tagsController.dispose();
   }
-
+ 
   Future<void> _launch(String url) async {
     final uri = Uri.tryParse(url);
     if (uri != null && await canLaunchUrl(uri)) {
@@ -769,7 +811,7 @@ class _UserManageScreenState extends State<UserManageScreen> {
           type: SnackType.error);
     }
   }
-
+ 
   String? _comProfileUrl(Map<String, dynamic> com) {
     final profile = com['userProfile'];
     if (profile is Map) {
@@ -785,19 +827,19 @@ class _UserManageScreenState extends State<UserManageScreen> {
         ? '$baseAltAminoUrl/u/$aminoId'
         : null;
   }
-
+ 
   Future<void> _showCommunityActions(Map<String, dynamic> com) async {
     final ndcId = int.tryParse('${com['ndcId']}');
     if (ndcId == null) return;
     final colors = AppColors.of(context);
-
+ 
     setState(() => _busy = true);
     final st = await _fetchScopeState(ndcId);
     if (!mounted) return;
     setState(() => _busy = false);
     final actions = _scopeActions(ndcId, colors, st);
     final profileUrl = _comProfileUrl(com);
-
+ 
     await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -864,11 +906,11 @@ class _UserManageScreenState extends State<UserManageScreen> {
       ),
     );
   }
-
+ 
   @override
   Widget build(BuildContext context) {
     final colors = AppColors.of(context);
-
+ 
     return Scaffold(
       body: AppBackground(
         child: SafeArea(
@@ -896,7 +938,7 @@ class _UserManageScreenState extends State<UserManageScreen> {
       ),
     );
   }
-
+ 
   Widget _buildDenied(AppPalette colors) {
     return Center(
       child: Column(
@@ -920,7 +962,7 @@ class _UserManageScreenState extends State<UserManageScreen> {
       ),
     );
   }
-
+ 
   Widget _buildContent(AppPalette colors) {
     return ListView(
       padding: EdgeInsets.fromLTRB(
@@ -956,7 +998,7 @@ class _UserManageScreenState extends State<UserManageScreen> {
       ],
     );
   }
-
+ 
   Widget _sectionTitle(AppPalette colors, String text) => Text(
         text,
         style: TextStyle(
@@ -965,13 +1007,13 @@ class _UserManageScreenState extends State<UserManageScreen> {
           fontSize: 13,
         ),
       );
-
+ 
   Widget _buildProfileCard(AppPalette colors) {
     final aminoId = _user['aminoId'] as String?;
     final tags = (_user['tagList'] as List?)?.cast<String>() ?? const [];
     final inTeam = _teamMember != null && !_communityMode;
     final roleColor = _roleColor(_teamRole, colors);
-
+ 
     return Card(
       margin: EdgeInsets.zero,
       color: colors.glassFillStrong,
@@ -1074,7 +1116,7 @@ class _UserManageScreenState extends State<UserManageScreen> {
       ),
     );
   }
-
+ 
   List<Widget> _buildCommunities(AppPalette colors) {
     final header = Row(
       children: [
@@ -1100,9 +1142,9 @@ class _UserManageScreenState extends State<UserManageScreen> {
         ),
       ],
     );
-
+ 
     if (!_showCommunities) return [header];
-
+ 
     if (_communities.isEmpty) {
       return [
         header,
@@ -1117,7 +1159,7 @@ class _UserManageScreenState extends State<UserManageScreen> {
         ),
       ];
     }
-
+ 
     return [
       header,
       const SizedBox(height: 4),
@@ -1130,7 +1172,7 @@ class _UserManageScreenState extends State<UserManageScreen> {
     ];
   }
 }
-
+ 
 class _ScopeState {
   const _ScopeState({
     this.banned,
@@ -1143,7 +1185,7 @@ class _ScopeState {
   final bool deleted;
   final int? role;
 }
-
+ 
 class _ActionSpec {
   const _ActionSpec(this.icon, this.label, this.color, this.onTap);
   final IconData icon;
@@ -1151,11 +1193,11 @@ class _ActionSpec {
   final Color color;
   final VoidCallback onTap;
 }
-
+ 
 class _ActionWrap extends StatelessWidget {
   const _ActionWrap({required this.actions});
   final List<_ActionSpec> actions;
-
+ 
   @override
   Widget build(BuildContext context) {
     return Wrap(
@@ -1178,23 +1220,23 @@ class _ActionWrap extends StatelessWidget {
     );
   }
 }
-
+ 
 class _CommunityTile extends StatelessWidget {
   const _CommunityTile({
     required this.community,
     required this.cleanIcon,
     required this.onTap,
   });
-
+ 
   final Map<String, dynamic> community;
   final String? Function(dynamic) cleanIcon;
   final VoidCallback onTap;
-
+ 
   @override
   Widget build(BuildContext context) {
     final colors = AppColors.of(context);
     const radius = BorderRadius.all(Radius.circular(16));
-
+ 
     final profile = (community['userProfile'] as Map?) ?? {};
     final comIcon = cleanIcon(community['icon']);
     final userIcon = cleanIcon(profile['icon']);
@@ -1202,7 +1244,7 @@ class _CommunityTile extends StatelessWidget {
     final staffSuffix = isStaff
         ? " · ${AppLocalizations.t('admin.labels.community_staff')}"
         : "";
-
+ 
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: Material(
@@ -1277,13 +1319,13 @@ class _CommunityTile extends StatelessWidget {
     );
   }
 }
-
+ 
 class _Badge extends StatelessWidget {
   const _Badge({required this.text, required this.color, this.filled = false});
   final String text;
   final Color color;
   final bool filled;
-
+ 
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -1304,7 +1346,7 @@ class _Badge extends StatelessWidget {
     );
   }
 }
-
+ 
 class _ReasonDialog extends StatefulWidget {
   const _ReasonDialog({
     required this.title,
@@ -1312,25 +1354,25 @@ class _ReasonDialog extends StatefulWidget {
     required this.confirm,
     required this.danger,
   });
-
+ 
   final String title;
   final String message;
   final String confirm;
   final bool danger;
-
+ 
   @override
   State<_ReasonDialog> createState() => _ReasonDialogState();
 }
-
+ 
 class _ReasonDialogState extends State<_ReasonDialog> {
   final _controller = TextEditingController();
-
+ 
   @override
   void dispose() {
     _controller.dispose();
     super.dispose();
   }
-
+ 
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -1373,18 +1415,18 @@ class _NdcRoleDialog extends StatefulWidget {
     required this.roles,
     required this.labelOf,
   });
-
+ 
   final int current;
   final List<int> roles;
   final String Function(int) labelOf;
-
+ 
   @override
   State<_NdcRoleDialog> createState() => _NdcRoleDialogState();
 }
-
+ 
 class _NdcRoleDialogState extends State<_NdcRoleDialog> {
   late int _selected = widget.current;
-
+ 
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -1419,7 +1461,7 @@ class _NdcRoleDialogState extends State<_NdcRoleDialog> {
     );
   }
 }
-
+ 
 class _NoticeResult {
   const _NoticeResult({
     required this.title,
@@ -1432,16 +1474,16 @@ class _NoticeResult {
   final int? duration;
   final String? reason;
 }
-
+ 
 class _NoticeDialog extends StatefulWidget {
   const _NoticeDialog({required this.templates, required this.strike});
   final List<Map<String, dynamic>> templates;
   final bool strike;
-
+ 
   @override
   State<_NoticeDialog> createState() => _NoticeDialogState();
 }
-
+ 
 class _NoticeDialogState extends State<_NoticeDialog> {
   static const Map<int, String> _durations = {
     3600: '1h',
@@ -1455,15 +1497,15 @@ class _NoticeDialogState extends State<_NoticeDialog> {
     172800: '48h',
     259200: '72h',
   };
-
+ 
   final _title = TextEditingController();
   final _content = TextEditingController();
   final _reason = TextEditingController();
-
+ 
   String? _templateId;
   int _duration = 3600;
   bool _showError = false;
-
+ 
   @override
   void dispose() {
     _title.dispose();
@@ -1471,7 +1513,7 @@ class _NoticeDialogState extends State<_NoticeDialog> {
     _reason.dispose();
     super.dispose();
   }
-
+ 
   void _pickTemplate(Map<String, dynamic>? tpl) {
     setState(() {
       _templateId = tpl?['id']?.toString();
@@ -1480,7 +1522,7 @@ class _NoticeDialogState extends State<_NoticeDialog> {
       _showError = false;
     });
   }
-
+ 
   void _submit() {
     final title = _title.text.trim();
     final content = _content.text.trim();
@@ -1498,11 +1540,11 @@ class _NoticeDialogState extends State<_NoticeDialog> {
       ),
     );
   }
-
+ 
   @override
   Widget build(BuildContext context) {
     final errText = _showError ? AppLocalizations.t('admin.community.err_empty') : null;
-
+ 
     return AlertDialog(
       title: Text(AppLocalizations.t(
           widget.strike ? 'admin.mod.strike' : 'admin.mod.warn')),
