@@ -9,7 +9,7 @@
 
 **AltAmino Web page:** [AltTeam](https://altamino.top/altapp)
 
-**Repo Web page:** [AltTeam](https://AltTeam-App.github.io/) (all releases)
+**Repo Web page:** [AltTeam](https://alx0rr.github.io/AltTeam-App/) (all releases)
 
 **[Developer](https://alx0rr.github.io/)**
 
