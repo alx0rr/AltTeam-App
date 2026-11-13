@@ -4,19 +4,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#101014">
+    <meta name="theme-color" content="#101413">
+    
 
     <title>AltTeam — Downloads</title>
-    <meta name="description" content="Download the latest AltTeam releases and source code.">
+    <meta name="description" content="Download AltTeam releases and source code.">
 
     <link rel="stylesheet" href="res/style.css">
+    <link rel="icon" type="image/png" href="res/favicon.png">
+    <link rel="apple-touch-icon" href="res/favicon.png">
+    
 </head>
 <body>
     <header class="header">
         <a class="logo" href="#">AltTeam<span>.</span></a>
+
         <a class="github-link"
            href="https://github.com/alx0rr/AltTeam-App"
-           target="_blank">
+           target="_blank"
+           rel="noopener noreferrer">
             GitHub ↗
         </a>
     </header>
@@ -27,39 +33,61 @@
             <h1>Download <span>AltTeam.</span></h1>
             <p>
                 Get the latest version of AltTeam for your device,
-                or explore the source code.
+                or explore previous releases and source code.
             </p>
         </section>
 
-        <section class="release-section">
+        <section class="latest-section">
             <div class="section-heading">
                 <div>
                     <div class="eyebrow">LATEST VERSION</div>
                     <h2 id="version">Loading...</h2>
                 </div>
+
                 <span class="latest-badge">LATEST</span>
             </div>
 
             <p class="release-date" id="release-date"></p>
+
             <div class="release-notes" id="release-notes">
                 Loading release information...
             </div>
 
             <div class="downloads">
-                <h3>Android</h3>
-                <div id="android-files" class="file-list"></div>
+                <div id="latest-files"></div>
+            </div>
 
-                <h3>iOS</h3>
-                <div id="ios-files" class="file-list"></div>
+            <a id="latest-github" class="release-link"
+               href="#" target="_blank"
+               rel="noopener noreferrer">
+                View release on GitHub ↗
+            </a>
+        </section>
 
-                <h3>Source code</h3>
-                <div id="source-files" class="file-list"></div>
+        <section class="history-section">
+            <div class="history-heading">
+                <div>
+                    <div class="eyebrow">ARCHIVE</div>
+                    <h2>All releases</h2>
+                </div>
+
+                <span class="release-count" id="release-count">0 releases</span>
+            </div>
+
+            <div id="releases-list" class="releases-list">
+                <div class="loading">Loading releases...</div>
+            </div>
+
+            <div id="load-error" class="error hidden">
+                Unable to load releases. Please try again later.
             </div>
         </section>
 
         <footer>
-            <span>AltTeam © 2026</span>
-            <a href="https://github.com/alx0rr/AltTeam-App">
+            <span>Alx0rr © 2026</span>
+            <a href="https://github.com/alx0rr/AltTeam-App"
+               target="_blank"
+               rel="noopener noreferrer">
                 View repository ↗
             </a>
         </footer>
